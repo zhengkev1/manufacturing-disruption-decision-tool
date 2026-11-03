@@ -51,4 +51,19 @@ needs_overtime <- simulate_day(late_order, late_release, larger_base, good_draw,
                                "reassign_overtime", costs)
 stopifnot(needs_overtime$orders$completed_bucket == 18L,
           needs_overtime$summary$overtime_hours == 1)
+
+# Missing cost parameters must fail rather than silently omit a charge.
+incomplete_costs <- costs
+incomplete_costs$late_usd_per_order <- NULL
+missing_cost_result <- tryCatch(simulate_day(orders, releases, base, draws,
+                                              "continue", incomplete_costs),
+                                error = function(e) e)
+stopifnot(inherits(missing_cost_result, "error"))
+
+fractional_cap <- base
+fractional_cap["test"] <- 1.5
+fractional_result <- tryCatch(simulate_day(orders, releases, fractional_cap,
+                                           draws, "continue", costs),
+                              error = function(e) e)
+stopifnot(inherits(fractional_result, "error"))
 cat("decision model tests passed\n")

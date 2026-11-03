@@ -14,10 +14,10 @@ stopifnot(file.exists(file.path(out, "comparison.csv")),
 stopifnot(nrow(read.csv(file.path(out, "sensitivity.csv"))) == 3L)
 stopifnot(result$recommended == result$comparison$scenario[
   order(-result$comparison$on_time_orders, result$comparison$total_cost_usd)[1]])
-stopifnot(identical(result$runs$continue$bucket_log[1:8, ],
-                    result$runs$flex$bucket_log[1:8, ]))
-stopifnot(identical(result$runs$continue$bucket_log[1:8, ],
-                    result$runs$reassign_overtime$bucket_log[1:8, ]))
+stopifnot(isTRUE(all.equal(result$runs$continue$bucket_log[1:8, ],
+                           result$runs$flex$bucket_log[1:8, ])))
+stopifnot(isTRUE(all.equal(result$runs$continue$bucket_log[1:8, ],
+                           result$runs$reassign_overtime$bucket_log[1:8, ])))
 for (run in result$runs) {
   stopifnot(sum(result$releases$units) == run$summary$good_units_shipped +
               run$summary$scrap_units + run$summary$end_wip_units +

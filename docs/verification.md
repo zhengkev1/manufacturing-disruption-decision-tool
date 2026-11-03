@@ -11,7 +11,7 @@ In the fixed-seed 12% shock case, the flow balances are: continue `78 shipped + 
 ## Checks
 
 - `tests/test_baseline.R`: hand-derived five-bucket flow, earliest-due allocation, late completion, and conservation.
-- `tests/test_decision_model.R`: capacity changes, one-bucket routing, repair success/failure, due-time calculation, cost, changeable defect probability, and conditional overtime.
+- `tests/test_decision_model.R`: capacity changes, one-bucket routing, repair success/failure, due-time calculation, cost, changeable defect probability, conditional overtime, missing-cost rejection, and fractional-capacity rejection.
 - `tests/test_analysis.R`: outputs and required fields, recommendation rule, identical pre-shock logs, and final flow balances.
 - `output/comparison.png` was visually inspected for legible labels.
 

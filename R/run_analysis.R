@@ -9,9 +9,6 @@ run_analysis <- function(out_dir = "output") {
   costs_data <- read.csv("data/costs.csv", stringsAsFactors = FALSE)
   capacities <- setNames(stations$capacity_units_per_bucket, stations$station)
   settings <- as.list(setNames(settings_data$value, settings_data$key))
-  count_settings <- c("shock_bucket", "shift_end_bucket", "horizon_buckets",
-                      "flex_test_units", "flex_rework_units", "reassignment_units")
-  settings[count_settings] <- lapply(settings[count_settings], as.integer)
   costs <- as.list(setNames(costs_data$value, costs_data$key))
 
   scenarios <- c("continue", "flex", "reassign_overtime")

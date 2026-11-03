@@ -30,6 +30,27 @@ take_front <- function(queue, n) {
 
 simulate_day <- function(orders, releases, capacities, draws, scenario, costs,
                          settings = default_settings()) {
+  required_costs <- c("base_labor_usd", "floater_usd_per_hour",
+                      "overtime_usd_per_hour", "rework_usd_per_unit",
+                      "scrap_usd_per_unit", "late_usd_per_order",
+                      "end_wip_usd_per_unit")
+  valid_rate <- function(x) is.numeric(x) && length(x) == 1L &&
+    is.finite(x) && x >= 0
+  if (!setequal(names(costs), required_costs) ||
+      !all(vapply(costs, valid_rate, logical(1))))
+    stop("Cost inputs must contain every required finite nonnegative USD rate")
+  if (!setequal(names(settings), names(default_settings())) ||
+      !all(vapply(settings, valid_rate, logical(1))))
+    stop("Settings must contain every required finite nonnegative value")
+  whole_units <- function(x) is.numeric(x) && all(is.finite(x)) &&
+    all(x >= 0) && all(x == floor(x))
+  count_settings <- c("shock_bucket", "shift_end_bucket", "horizon_buckets",
+                      "flex_test_units", "flex_rework_units", "reassignment_units")
+  if (!all(vapply(settings[count_settings], whole_units, logical(1))) ||
+      !whole_units(orders$quantity_units) || !whole_units(orders$due_bucket) ||
+      !whole_units(releases$bucket) || !whole_units(releases$units) ||
+      !whole_units(capacities))
+    stop("Buckets, capacities, releases, and order quantities must be whole units")
   stopifnot(identical(releases$bucket, seq_len(settings$horizon_buckets)),
             all(releases$units >= 0L),
             all(orders$quantity_units > 0L), all(orders$due_bucket >= 1L),
@@ -37,7 +58,7 @@ simulate_day <- function(orders, releases, capacities, draws, scenario, costs,
             sum(releases$units) == nrow(draws), identical(draws$unit_id, seq_len(nrow(draws))),
             all(draws$defect_draw >= 0 & draws$defect_draw < 1),
             all(draws$repair_draw >= 0 & draws$repair_draw < 1),
-            all(capacities > 0), all(unlist(costs) >= 0),
+            all(capacities > 0),
             settings$shock_bucket >= 1L, settings$shock_bucket <= settings$shift_end_bucket,
             settings$shift_end_bucket < settings$horizon_buckets,
             all(unlist(settings[c("pre_defect_rate", "post_defect_rate", "repair_success_rate")]) >= 0),
