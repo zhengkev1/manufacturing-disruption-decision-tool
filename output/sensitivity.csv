@@ -1,0 +1,4 @@
+"post_defect_rate","recommended","continue_on_time","flex_on_time","reassign_on_time"
+0.06,"continue",3,3,3
+0.12,"reassign_overtime",2,3,3
+0.18,"reassign_overtime",2,3,3

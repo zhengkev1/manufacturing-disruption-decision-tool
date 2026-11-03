@@ -1,0 +1,10 @@
+"key","value"
+"shock_bucket",9
+"shift_end_bucket",16
+"horizon_buckets",20
+"pre_defect_rate",0.02
+"post_defect_rate",0.12
+"repair_success_rate",0.75
+"flex_test_units",1
+"flex_rework_units",1
+"reassignment_units",2

@@ -1,0 +1,8 @@
+"key","value"
+"base_labor_usd",2400
+"floater_usd_per_hour",25
+"overtime_usd_per_hour",450
+"rework_usd_per_unit",5
+"scrap_usd_per_unit",30
+"late_usd_per_order",100
+"end_wip_usd_per_unit",1

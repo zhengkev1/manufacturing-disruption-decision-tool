@@ -1,0 +1,4 @@
+"scenario","good_units_shipped","on_time_orders","end_wip_units","finished_goods_units","overtime_hours","reworked_units","scrap_units","total_cost_usd","recommended"
+"continue",78,2,49,0,0,4,1,2599,FALSE
+"flex",80,3,42,5,0,6,1,2602,FALSE
+"reassign_overtime",80,3,47,0,0,5,1,2502,TRUE

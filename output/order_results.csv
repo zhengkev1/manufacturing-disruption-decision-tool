@@ -1,0 +1,10 @@
+"scenario","order_id","quantity_units","due_bucket","shipped_units","completed_bucket","on_time"
+"continue","O1",35,12,35,8,TRUE
+"continue","O2",30,16,30,14,TRUE
+"continue","O3",15,20,13,NA,FALSE
+"flex","O1",35,12,35,8,TRUE
+"flex","O2",30,16,30,13,TRUE
+"flex","O3",15,20,15,16,TRUE
+"reassign_overtime","O1",35,12,35,8,TRUE
+"reassign_overtime","O2",30,16,30,13,TRUE
+"reassign_overtime","O3",15,20,15,16,TRUE
