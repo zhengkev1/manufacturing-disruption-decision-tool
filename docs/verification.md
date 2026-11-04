@@ -13,6 +13,9 @@ In the fixed-seed 12% shock case, the flow balances are: continue `78 shipped + 
 - `tests/test_baseline.R`: hand-derived five-bucket flow, earliest-due allocation, late completion, and conservation.
 - `tests/test_decision_model.R`: capacity changes, one-bucket routing, repair success/failure, due-time calculation, cost, changeable defect probability, conditional overtime, missing-cost rejection, and fractional-capacity rejection.
 - `tests/test_analysis.R`: outputs and required fields, recommendation rule, identical pre-shock logs, and final flow balances.
+- `tests/test_dashboard_data.R`: dashboard 12% results match the saved comparison; at 6% the recommendation changes to continue; input settings remain unchanged.
+- `tests/test_shiny_app.R`: Shiny app boots from the repository.
 - `output/comparison.png` was visually inspected for legible labels.
+- The local Shiny page was opened in a browser; the 12% result displayed reassign with 3/3 orders and $2502, and the slider showed continue at 6%. The dashboard was also checked at a narrow viewport for readable charts.
 
 These checks verify the implementation under the stated assumptions, not real-world predictive accuracy.

@@ -14,7 +14,7 @@ The rule chooses the feasible option with the most **fully delivered on-time ord
 
 ## Run on a Mac
 
-Base R is the only requirement. From the project root:
+The command-line model uses base R. The optional local dashboard requires the R package `shiny` (`install.packages("shiny")` if needed). From the project root:
 
 ```sh
 Rscript R/generate_data.R
@@ -22,7 +22,11 @@ Rscript R/run_analysis.R
 Rscript tests/test_baseline.R
 Rscript tests/test_decision_model.R
 Rscript tests/test_analysis.R
+Rscript tests/test_dashboard_data.R
+Rscript tests/test_shiny_app.R
 ```
+
+To open the interactive dashboard on your Mac, run `Rscript -e 'shiny::runApp("app", launch.browser=TRUE)'` from the project root. It runs on your computer and is **not deployed publicly**. The slider changes only the post-shock defect rate; the orders, capacities, and unit-level random draws remain fixed. If you edit input CSVs, restart the app to reload them. The dashboard does not overwrite input CSVs or saved analysis outputs.
 
 The generator **overwrites** the CSVs in `data/` with the starter scenario. Edit those CSVs after generating them to explore another case; do not rerun the generator unless you want to reset them. `R/run_analysis.R` writes `output/comparison.csv`, `comparison.png`, `order_results.csv`, `bucket_log.csv`, `cost_breakdown.csv`, `sensitivity.csv`, and `decision_memo.md`.
 
