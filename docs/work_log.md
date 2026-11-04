@@ -80,4 +80,18 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Wait for GitHub Actions run `41781249722` to reach a final conclusion; inspect failed step logs if needed. Run the expanded local test suite, then commit the alternate-line test and documentation. Confirm the next CI run includes that test and returns success.
 - **Reproduce:** `for f in tests/*.R; do Rscript "$f" || exit 1; done`; inspect the run's job steps and final conclusion through GitHub; compare local/remote commit IDs.
 - **Rollback:** Retain `6569c52` as the pre-alternate-line checkpoint; if the new test is flaky or mis-specified, remove it without changing the simulator.
-- **Result:** The expanded local suite passed all seven test scripts, and `git diff --check` passed. First CI run succeeded; commit/push and the second CI run remain pending.
+- **Result:** The expanded local suite passed all seven test scripts, and `git diff --check` passed. First CI run succeeded. Committed and pushed alternate-line evidence as `83767c3`; second GitHub run `41781652114` started and was still in progress at 00:50.
+
+## 2026-11-04 00:51 — Step 13: keep repeated simulations from changing the caller's RNG state
+
+- **Plan before action:** Test whether `run_replications()` changes `.Random.seed` when called with fixed seeds. If it does, preserve and restore the caller's seed, including when the function errors, without adding a package dependency. This makes the reusable function less surprising to other R analyses while keeping its saved outputs identical.
+- **Reproduce:** Add a focused red-green check in `tests/test_replications.R`; run all R tests and compare the 12% saved summary against a fresh call.
+- **Rollback:** Commit `83767c3` is the last remote checkpoint; revert only RNG handling if it changes documented results.
+- **Result:** The new test showed that `run_replications()` changed `.Random.seed`. The function now restores an existing seed or removes the temporary seed if none existed, including after an error. Focused and full R tests passed. Re-running `R/run_replications.R` reproduced the saved 12% means, cost quantiles, and 5/15/80 selection counts without changing the tracked output CSVs.
+
+## 2026-11-04 00:53 — Step 14: checkpoint RNG isolation and inspect CI
+
+- **Plan before action:** Confirm second GitHub Actions run reaches a final conclusion, review the RNG-isolation diff, then commit/push this verified change. If remote CI fails, inspect the failed step and fix that before declaring automation reliable.
+- **Reproduce:** `git diff --check`; `for f in tests/*.R; do Rscript "$f" || exit 1; done`; inspect GitHub run `41781652114` and the next run after push.
+- **Rollback:** Commit `83767c3` is the last remote checkpoint before RNG isolation.
+- **Result:** Pending.

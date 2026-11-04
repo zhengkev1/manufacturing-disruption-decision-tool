@@ -3,6 +3,16 @@ source("R/dashboard_data.R")
 source("R/replications.R")
 
 inputs <- load_dashboard_inputs()
+set.seed(42)
+caller_seed <- .Random.seed
+invisible(run_replications(0.12, inputs, seeds = 501:503))
+stopifnot(identical(.Random.seed, caller_seed))
+failed_run <- tryCatch(run_replications(-0.1, inputs, seeds = 501),
+                       error = function(e) e)
+stopifnot(inherits(failed_run, "error"), identical(.Random.seed, caller_seed))
+rm(".Random.seed", envir = .GlobalEnv)
+invisible(run_replications(0.12, inputs, seeds = 501))
+stopifnot(!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
 a <- run_replications(0.12, inputs, seeds = 501:503)
 b <- run_replications(0.12, inputs, seeds = 501:503)
 stopifnot(identical(a, b))

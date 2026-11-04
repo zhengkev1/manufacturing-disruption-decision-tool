@@ -2,6 +2,13 @@ run_replications <- function(rate, inputs, seeds = 1001:1100) {
   if (!is.numeric(seeds) || length(seeds) < 1L || any(!is.finite(seeds)) ||
       any(seeds < 0 | seeds != floor(seeds)) || anyDuplicated(seeds))
     stop("Seeds must be distinct nonnegative integers")
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) caller_seed <- get(".Random.seed", envir = .GlobalEnv)
+  on.exit({
+    if (had_seed) assign(".Random.seed", caller_seed, envir = .GlobalEnv)
+    else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+      rm(".Random.seed", envir = .GlobalEnv)
+  })
   days <- lapply(seq_along(seeds), function(day) {
     set.seed(seeds[day])
     varied <- inputs
