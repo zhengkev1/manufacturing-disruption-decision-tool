@@ -20,6 +20,7 @@ The command-line model uses base R. The optional local dashboard requires the R 
 Rscript R/generate_data.R
 Rscript R/run_analysis.R
 Rscript tests/test_baseline.R
+Rscript tests/test_alternate_line.R
 Rscript tests/test_decision_model.R
 Rscript tests/test_analysis.R
 Rscript tests/test_dashboard_data.R

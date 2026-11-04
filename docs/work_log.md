@@ -66,4 +66,18 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Verify current official GitHub Actions setup instructions, then add the smallest private-repository workflow that runs the R test suite and the retained stress audit on each push and pull request. Check the workflow syntax and inspect the first remote run before calling it working.
 - **Rollback:** Commit `ffccf77` is the known-good local and remote state. If the workflow is blocked by environment or package installation, remove only the workflow and document the result.
 - **Reproduce:** Inspect `.github/workflows/`; push the workflow; check its actual GitHub Actions run and logs, not only local YAML syntax.
-- **Result:** Pending.
+- **Result:** Workflow YAML parsed locally with Ruby and was pushed as commit `6569c52`. GitHub run `41781249722` completed successfully: R setup, Shiny installation, all R tests, and the retained stress audit passed on Ubuntu.
+
+## 2026-11-04 00:47 — Step 11: exercise a different low-volume synthetic line
+
+- **Plan before action:** Build a temporary end-to-end CSV case with fewer releases/orders, different station capacities, no fixed-draw defects, and zero reassignment. Run the existing `run_analysis()` path and check that all outputs, including charts, are generated with zero final WIP. If it fails, write a focused regression test, repair the specific edge case, and keep starter outputs unchanged.
+- **Reproduce:** A deterministic test script under `tests/` using temporary copied CSVs, then full R tests and the stress audit.
+- **Rollback:** Commit `6569c52` is the current remote baseline; revert only alternate-case fixes if they alter starter results.
+- **Result:** The first test fixture still released units near shift end, so nonzero WIP was the correct model result; it was not a code defect. After moving releases into buckets 1–12, the alternate-line test passed with 10 good units shipped and zero final WIP in all three responses. Chart and memo files were created. No production-code change was needed.
+
+## 2026-11-04 00:50 — Step 12: verify CI and preserve alternate-line evidence
+
+- **Plan before action:** Wait for GitHub Actions run `41781249722` to reach a final conclusion; inspect failed step logs if needed. Run the expanded local test suite, then commit the alternate-line test and documentation. Confirm the next CI run includes that test and returns success.
+- **Reproduce:** `for f in tests/*.R; do Rscript "$f" || exit 1; done`; inspect the run's job steps and final conclusion through GitHub; compare local/remote commit IDs.
+- **Rollback:** Retain `6569c52` as the pre-alternate-line checkpoint; if the new test is flaky or mis-specified, remove it without changing the simulator.
+- **Result:** The expanded local suite passed all seven test scripts, and `git diff --check` passed. First CI run succeeded; commit/push and the second CI run remain pending.

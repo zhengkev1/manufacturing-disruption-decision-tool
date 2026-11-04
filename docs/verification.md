@@ -11,6 +11,7 @@ In the fixed-seed 12% shock case, the flow balances are: continue `78 shipped + 
 ## Checks
 
 - `tests/test_baseline.R`: hand-derived five-bucket flow, earliest-due allocation, late completion, conservation, and station-row-order independence.
+- `tests/test_alternate_line.R`: end-to-end analysis from a different temporary synthetic CSV set with one order, lower release rate, changed capacities, and zero final WIP; confirms that the chart and memo are written.
 - `tests/test_decision_model.R`: capacity changes, one-bucket routing, repair success/failure, due-time calculation, cost, changeable defect probability, conditional overtime, two-hour cap under a longer horizon, station-row-order independence, malformed draw rejection, missing-cost rejection, and fractional-capacity rejection.
 - `tests/test_analysis.R`: outputs and required fields, recommendation rule, identical pre-shock logs, final flow balances, three-rate repeated simulation output, and fixed sweep rates after editing the base defect rate in a temporary copy of the inputs.
 - `tests/test_dashboard_data.R`: dashboard 12% results match the saved comparison; at 6% the recommendation changes to continue; input settings remain unchanged.
