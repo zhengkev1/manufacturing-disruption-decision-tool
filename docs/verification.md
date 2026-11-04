@@ -15,7 +15,9 @@ In the fixed-seed 12% shock case, the flow balances are: continue `78 shipped + 
 - `tests/test_analysis.R`: outputs and required fields, recommendation rule, identical pre-shock logs, and final flow balances.
 - `tests/test_dashboard_data.R`: dashboard 12% results match the saved comparison; at 6% the recommendation changes to continue; input settings remain unchanged.
 - `tests/test_shiny_app.R`: Shiny app boots from the repository.
+- `tests/test_replications.R`: repeated runs are deterministic for the same seeds, selection counts sum to the number of synthetic days, and one day reproduces from its seed.
 - `output/comparison.png` was visually inspected for legible labels.
 - The local Shiny page was opened in a browser; the 12% result displayed reassign with 3/3 orders and $2502, and the slider showed continue at 6%. The dashboard was also checked at a narrow viewport for readable charts.
+- The 100-day button was clicked once in the local browser after loading; the page displayed 5/15/80 selected days. A separate Python calculation from `output/replication_daily.csv` confirmed 100 distinct days and 300 scenario-day records, all three selection counts, the displayed means for on-time orders, units shipped, and cost, and the saved 10th/90th cost percentiles.
 
 These checks verify the implementation under the stated assumptions, not real-world predictive accuracy.

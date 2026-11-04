@@ -3,6 +3,7 @@ library(shiny)
 project_root <- normalizePath("..", mustWork = TRUE)
 source(file.path(project_root, "R", "decision_model.R"))
 source(file.path(project_root, "R", "dashboard_data.R"))
+source(file.path(project_root, "R", "replications.R"))
 model_inputs <- load_dashboard_inputs(file.path(project_root, "data"))
 scenario_names <- c(continue = "Continue plan", flex = "Flex worker",
                     reassign_overtime = "Reassign capacity")
@@ -37,7 +38,9 @@ ui <- fluidPage(
           h3("Scenario input"),
           sliderInput("defect_rate", "Post-shock defect rate", min = 0,
                       max = 30, value = 12, step = 1, post = "%"),
-          p(class = "note", "The rate rises after hour 4. Before the shock it remains 2%. Orders, capacities, and unit-level random draws stay fixed.")),
+          p(class = "note", "The rate rises after hour 4. Before the shock it remains 2%. Orders and capacities stay fixed."),
+          actionButton("run_replications", "Run 100 synthetic days", class = "btn-primary"),
+          p(class = "note", "The check redraws defects and repairs for each day. All three responses share the same draws within that day.")),
       div(class = "panel-box",
           h3("Decision rule"),
           p("1. Most fully delivered on-time orders"),
@@ -53,10 +56,46 @@ ui <- fluidPage(
           p(class = "note", "Gray: Continue · Orange: Flex · Blue: Reassign · Dashed line: defect shock at hour 4")),
       div(class = "panel-box", h3("All decision measures"),
           div(style = "overflow-x:auto;", tableOutput("comparison_table")),
-          p(class = "note", "WIP is unfinished work at hour 10. A response uses overtime only if orders remain incomplete after the normal shift.")))))
+          p(class = "note", "WIP is unfinished work at hour 10. A response uses overtime only if orders remain incomplete after the normal shift.")),
+      div(class = "panel-box", h3("100-day stability check"),
+          uiOutput("replication_status"),
+          plotOutput("replication_plot", height = "260px"),
+          div(style = "overflow-x:auto;", tableOutput("replication_table")),
+          p(class = "note", "Each day keeps the same orders, capacities, and cost assumptions. Selection counts describe these synthetic draws, not a real-world probability or confidence interval.")))))
 
 server <- function(input, output, session) {
   result <- reactive(compare_at_defect_rate(input$defect_rate / 100, model_inputs))
+  repeated <- eventReactive(input$run_replications,
+    run_replications(input$defect_rate / 100, model_inputs))
+
+  output$replication_status <- renderUI({
+    if (input$run_replications == 0L)
+      return(p(class = "note", "Choose a defect rate, then run the 100-day check."))
+    x <- repeated()
+    p(class = "note", sprintf("100 synthetic days at %.0f%% post-shock defects.%s",
+      100 * x$rate, if (x$rate != input$defect_rate / 100)
+        " The slider has changed; run again to update these results." else ""))
+  })
+
+  output$replication_plot <- renderPlot({
+    req(input$run_replications > 0L)
+    x <- repeated()$summary
+    par(mar = c(4, 6, 1, 1), cex.axis = 0.8, cex.lab = 0.8)
+    barplot(x$selected_days, names.arg = short_names[x$scenario],
+            col = scenario_colors[x$scenario], border = NA, horiz = TRUE, las = 1,
+            xlim = c(0, 100), xlab = "selected days")
+  }, res = 110, execOnResize = TRUE)
+
+  output$replication_table <- renderTable({
+    req(input$run_replications > 0L)
+    x <- repeated()$summary
+    data.frame(Response = scenario_names[x$scenario],
+      `Mean on-time orders` = round(x$mean_on_time_orders, 2),
+      `Mean good units shipped` = round(x$mean_good_units_shipped, 2),
+      `Mean cost (synthetic USD)` = round(x$mean_cost_usd, 2),
+      `Cost 10th–90th percentile (USD)` = sprintf("%.0f–%.0f", x$cost_p10_usd, x$cost_p90_usd),
+      `Days selected` = x$selected_days, check.names = FALSE)
+  }, rownames = FALSE, striped = TRUE)
 
   output$recommendation <- renderUI({
     x <- result()

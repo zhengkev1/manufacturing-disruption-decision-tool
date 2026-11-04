@@ -1,0 +1,4 @@
+"scenario","synthetic_days","mean_on_time_orders","mean_good_units_shipped","mean_cost_usd","cost_p10_usd","cost_p90_usd","selected_days"
+"continue",100,2.16,77.48,2606.04,2492,2668.6,5
+"flex",100,2.99,79.96,2623.24,2567,2671.7,15
+"reassign_overtime",100,3,80,2560.99,2469.9,2796.2,80
