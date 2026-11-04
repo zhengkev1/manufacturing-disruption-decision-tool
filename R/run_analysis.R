@@ -1,4 +1,6 @@
 source("R/decision_model.R")
+source("R/dashboard_data.R")
+source("R/replications.R")
 
 run_analysis <- function(out_dir = "output") {
   orders <- read.csv("data/orders.csv", stringsAsFactors = FALSE)
@@ -33,9 +35,23 @@ run_analysis <- function(out_dir = "output") {
       reassign_on_time = candidate$on_time_orders[3])
   }))
 
+  inputs <- list(orders = orders, releases = releases, draws = draws,
+                 capacities = capacities, settings = settings, costs = costs)
+  replication_rates <- c(0.06, 0.12, 0.18)
+  repeated <- lapply(replication_rates, function(rate)
+    run_replications(rate, inputs, seeds = 1001:1100))
+  replication_sensitivity <- do.call(rbind, Map(function(rate, result)
+    data.frame(post_defect_rate = rate, result$summary), replication_rates, repeated))
+  replication_daily <- do.call(rbind, Map(function(rate, result)
+    data.frame(post_defect_rate = rate, result$daily), replication_rates, repeated))
+
   dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
   write.csv(comparison, file.path(out_dir, "comparison.csv"), row.names = FALSE)
   write.csv(sensitivity, file.path(out_dir, "sensitivity.csv"), row.names = FALSE)
+  write.csv(replication_sensitivity,
+            file.path(out_dir, "replication_sensitivity.csv"), row.names = FALSE)
+  write.csv(replication_daily,
+            file.path(out_dir, "replication_sensitivity_daily.csv"), row.names = FALSE)
   write.csv(do.call(rbind, lapply(scenarios, function(s) {
     data.frame(scenario = s, cost_component = names(runs[[s]]$cost_detail),
                cost_usd = unname(runs[[s]]$cost_detail))
@@ -95,9 +111,25 @@ run_analysis <- function(out_dir = "output") {
             sensitivity$continue_on_time, sensitivity$flex_on_time,
             sensitivity$reassign_on_time, sensitivity$recommended),
     "",
+    "## Repeated synthetic days",
+    "",
+    "At each rate, 100 synthetic days use seeds 1001–1100. The same random draws are shared by the three responses within each day and by matching seeds across rates. Orders, capacities, and cost assumptions stay fixed.",
+    "",
+    "| Post-shock defect rate | Response | Mean on-time orders | Mean good units shipped | Mean cost (synthetic USD) | Days selected |",
+    "|---:|---|---:|---:|---:|---:|",
+    sprintf("| %.0f%% | %s | %.2f | %.2f | %.0f | %d |",
+            100 * replication_sensitivity$post_defect_rate,
+            replication_sensitivity$scenario,
+            replication_sensitivity$mean_on_time_orders,
+            replication_sensitivity$mean_good_units_shipped,
+            replication_sensitivity$mean_cost_usd,
+            replication_sensitivity$selected_days),
+    "",
+    "Days selected counts how often the stated rule chose each response in these synthetic draws. The single-day result above and these frequencies answer different questions. Neither is a real-world success probability or a confidence interval.",
+    "",
     "## Decision limits",
     "",
-    "The result is one fixed-seed synthetic day. It is sensitive to assumed capacities, defect/repair outcomes, order deadlines, and cost rates. The late-order charge is a comparison proxy, not a contract penalty. Recalibrate and validate against real operations before operational use."
+    "The recommendation at the top applies to one fixed-seed synthetic day. It is sensitive to assumed capacities, defect/repair outcomes, order deadlines, and cost rates. The late-order charge is a comparison proxy, not a contract penalty. Recalibrate and validate against real operations before operational use."
   )
   writeLines(memo, file.path(out_dir, "decision_memo.md"))
   list(comparison = comparison, recommended = recommended, runs = runs,

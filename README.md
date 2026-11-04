@@ -32,7 +32,7 @@ To open the interactive dashboard on your Mac, run `Rscript -e 'shiny::runApp("a
 
 The dashboard's **Run 100 synthetic days** button redraws defect and repair outcomes for seeds 1001–1100 at the selected post-shock rate. Within each day, all three responses share the same draws (common random numbers), so their differences reflect the response under matched random conditions. The button reports mean on-time orders, mean good units shipped, mean cost, the 10th–90th percentile range of cost, and how many days each response was selected by the existing rule. If the rate slider changes after running it, click the button again. `R/run_replications.R` saves the 12% case to `output/replication_daily.csv` and `output/replication_summary.csv`.
 
-The generator **overwrites** the CSVs in `data/` with the starter scenario. Edit those CSVs after generating them to explore another case; do not rerun the generator unless you want to reset them. `R/run_analysis.R` writes `output/comparison.csv`, `comparison.png`, `order_results.csv`, `bucket_log.csv`, `cost_breakdown.csv`, `sensitivity.csv`, and `decision_memo.md`.
+The generator **overwrites** the CSVs in `data/` with the starter scenario. Edit those CSVs after generating them to explore another case; do not rerun the generator unless you want to reset them. `R/run_analysis.R` writes the single-day comparison, chart, order/bucket/cost details, `sensitivity.csv`, `replication_sensitivity.csv`, `replication_sensitivity_daily.csv`, and `decision_memo.md` to `output/`.
 
 ## Synthetic inputs and units
 
@@ -67,9 +67,9 @@ Late-order and WIP charges are comparison proxies, not observed penalties or acc
 
 ## Findings and limitations
 
-See the [decision memo](output/decision_memo.md) and [chart](output/comparison.png) for the fixed-seed scenario. A small sensitivity check repeats the comparison at 6%, 12%, and 18% post-shock defect probabilities using the same draws. This is **not** a confidence interval or empirical validation. The recommended action can change when assumptions change.
+See the [decision memo](output/decision_memo.md) and [chart](output/comparison.png) for the fixed-seed scenario. The memo first compares one synthetic day at 6%, the configured base rate (12% in the starter inputs), and 18% post-shock defect probabilities. It then compares 100 synthetic days at each of the fixed rates 6%, 12%, and 18% using seeds 1001–1100. Matching seeds provide the same unit-level draws across responses and rates, isolating the modeled effect of the changed rate. These results are **not** confidence intervals or empirical validation. The recommended action can change when assumptions change.
 
-The 100-day check varies only defect and repair draws. Orders, capacities, costs, and routing remain fixed across days. Its selection count is a **synthetic-scenario frequency**, not a real-world probability that an action is optimal. The reported cost percentile range describes the simulated 100 values; it is not a confidence interval for a factory.
+The 100-day check varies only defect and repair draws. Orders, capacities, costs, and routing remain fixed across days. Its selection count is a **synthetic-scenario frequency**, not a real-world probability that an action is optimal. The reported cost percentile range describes the simulated 100 values; it is not a confidence interval for a factory. With the starter inputs, the 6% fixed-seed day selects Continue, while Reassign is selected on 82 of 100 other synthetic days at 6%; this illustrates why a single draw should not be presented as a stable recommendation.
 
 This is a three-stage, one-day template. Before applying it elsewhere, replace the CSV assumptions, confirm routing and worker qualifications, and compare predictions with observed production. The model omits machine breakdowns, variable processing times, multiple rework attempts, and real customer penalty contracts.
 

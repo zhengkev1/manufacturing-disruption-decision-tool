@@ -24,6 +24,24 @@ The same synthetic unit draws were reused while changing only the post-shock def
 | 12% | 2 | 3 | 3 | reassign_overtime |
 | 18% | 2 | 3 | 3 | reassign_overtime |
 
+## Repeated synthetic days
+
+At each rate, 100 synthetic days use seeds 1001–1100. The same random draws are shared by the three responses within each day and by matching seeds across rates. Orders, capacities, and cost assumptions stay fixed.
+
+| Post-shock defect rate | Response | Mean on-time orders | Mean good units shipped | Mean cost (synthetic USD) | Days selected |
+|---:|---|---:|---:|---:|---:|
+| 6% | continue | 2.70 | 79.44 | 2516 | 16 |
+| 6% | flex | 2.99 | 79.99 | 2584 | 2 |
+| 6% | reassign_overtime | 3.00 | 80.00 | 2490 | 82 |
+| 12% | continue | 2.16 | 77.48 | 2606 | 5 |
+| 12% | flex | 2.99 | 79.96 | 2623 | 15 |
+| 12% | reassign_overtime | 3.00 | 80.00 | 2561 | 80 |
+| 18% | continue | 2.01 | 75.05 | 2651 | 0 |
+| 18% | flex | 2.80 | 79.55 | 2680 | 19 |
+| 18% | reassign_overtime | 3.00 | 80.00 | 2647 | 81 |
+
+Days selected counts how often the stated rule chose each response in these synthetic draws. The single-day result above and these frequencies answer different questions. Neither is a real-world success probability or a confidence interval.
+
 ## Decision limits
 
-The result is one fixed-seed synthetic day. It is sensitive to assumed capacities, defect/repair outcomes, order deadlines, and cost rates. The late-order charge is a comparison proxy, not a contract penalty. Recalibrate and validate against real operations before operational use.
+The recommendation at the top applies to one fixed-seed synthetic day. It is sensitive to assumed capacities, defect/repair outcomes, order deadlines, and cost rates. The late-order charge is a comparison proxy, not a contract penalty. Recalibrate and validate against real operations before operational use.
