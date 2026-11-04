@@ -52,7 +52,7 @@ This log records each planned step before work starts, then its result and repro
 
 - **Plan before action:** Update README and verification notes for the overtime cap, station-row-order handling, draw validation, and public-data assessment. Re-run the full tests and starter analysis, review the diff, obtain independent code review, then commit and push to the confirmed private repository. This commit becomes the rollback point for later experiments.
 - **Reproduce:** `for f in tests/*.R; do Rscript "$f" || exit 1; done`; `Rscript R/run_analysis.R`; `git diff --check`; inspect the logged commands and output.
-- **Result:** Full R tests, starter analysis, the 300-case stress audit, and `git diff --check` passed. Independent review found two documentation/reproducibility gaps; Step 9 resolved both. Checkpoint commit and push follow.
+- **Result:** Full R tests, starter analysis, the 300-case stress audit, and `git diff --check` passed. Independent review found two documentation/reproducibility gaps; Step 9 resolved both. Committed and pushed checkpoint `ffccf77` to the verified private `main`; GitHub file retrieval confirmed the retained stress script, and the local tree was clean.
 
 ## 2026-11-04 00:42 — Step 9: close review gaps before checkpoint
 
@@ -60,3 +60,10 @@ This log records each planned step before work starts, then its result and repro
 - **Reproduce:** `Rscript tests/test_baseline.R`; `Rscript audit/stress_general_inputs.R`; full `tests/*.R` suite.
 - **Rollback:** Keep the pre-review baseline code available in commit `3081b74`; revert only this new normalization if it changes canonical results.
 - **Result:** The reordered baseline test failed before the fix and passed after normalizing three named station capacities. The 300-case script was copied into `audit/stress_general_inputs.R`. Full R tests, standalone baseline CLI, stress audit, and `git diff --check` passed. The independent reviewer confirmed both findings resolved.
+
+## 2026-11-04 00:44 — Step 10: add automated regression checks
+
+- **Plan before action:** Verify current official GitHub Actions setup instructions, then add the smallest private-repository workflow that runs the R test suite and the retained stress audit on each push and pull request. Check the workflow syntax and inspect the first remote run before calling it working.
+- **Rollback:** Commit `ffccf77` is the known-good local and remote state. If the workflow is blocked by environment or package installation, remove only the workflow and document the result.
+- **Reproduce:** Inspect `.github/workflows/`; push the workflow; check its actual GitHub Actions run and logs, not only local YAML syntax.
+- **Result:** Pending.

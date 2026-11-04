@@ -1,0 +1,26 @@
+name: R checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: any::shiny
+      - name: Run R tests
+        shell: bash
+        run: |
+          for test_file in tests/*.R; do
+            Rscript "$test_file" || exit 1
+          done
+      - name: Stress valid synthetic inputs
+        run: Rscript audit/stress_general_inputs.R
