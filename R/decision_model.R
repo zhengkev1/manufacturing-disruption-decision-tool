@@ -6,10 +6,16 @@ default_settings <- function() {
 }
 
 capacity_schedule <- function(base, scenario, bucket, settings = default_settings()) {
-  stopifnot(identical(names(base), c("processing", "assembly", "test", "rework")))
+  station_names <- c("processing", "assembly", "test", "rework")
+  stopifnot(length(base) == length(station_names),
+            setequal(names(base), station_names))
+  base <- base[station_names]
   stopifnot(scenario %in% c("continue", "flex", "reassign_overtime"),
             bucket >= 1L, bucket <= settings$horizon_buckets)
-  if (bucket > settings$shift_end_bucket && scenario != "reassign_overtime") return(setNames(rep(0L, 4), names(base)))
+  if (bucket > settings$shift_end_bucket &&
+      (scenario != "reassign_overtime" ||
+       bucket > settings$shift_end_bucket + 4L))
+    return(setNames(rep(0L, 4), names(base)))
   cap <- base
   if (bucket >= settings$shock_bucket && bucket <= settings$shift_end_bucket && scenario == "flex") {
     # One floater spends half of each bucket on test and half on rework.
@@ -51,13 +57,15 @@ simulate_day <- function(orders, releases, capacities, draws, scenario, costs,
       !whole_units(releases$bucket) || !whole_units(releases$units) ||
       !whole_units(capacities))
     stop("Buckets, capacities, releases, and order quantities must be whole units")
+  valid_draw <- function(x) is.numeric(x) && all(is.finite(x)) &&
+    all(x >= 0 & x < 1)
+  if (!valid_draw(draws$defect_draw) || !valid_draw(draws$repair_draw))
+    stop("Unit draws must be finite numeric values in [0, 1)")
   stopifnot(identical(releases$bucket, seq_len(settings$horizon_buckets)),
             all(releases$units >= 0L),
             all(orders$quantity_units > 0L), all(orders$due_bucket >= 1L),
             all(orders$due_bucket <= settings$horizon_buckets), !anyDuplicated(orders$order_id),
             sum(releases$units) == nrow(draws), identical(draws$unit_id, seq_len(nrow(draws))),
-            all(draws$defect_draw >= 0 & draws$defect_draw < 1),
-            all(draws$repair_draw >= 0 & draws$repair_draw < 1),
             all(capacities > 0),
             settings$shock_bucket >= 1L, settings$shock_bucket <= settings$shift_end_bucket,
             settings$shift_end_bucket < settings$horizon_buckets,
@@ -82,7 +90,7 @@ simulate_day <- function(orders, releases, capacities, draws, scenario, costs,
     released <- released + n_new
     cap <- capacity_schedule(capacities, scenario, bucket, settings)
     if (bucket > settings$shift_end_bucket && scenario == "reassign_overtime") {
-      if (all(remaining == 0L)) cap[] <- 0L
+      if (all(remaining == 0L) || all(cap == 0L)) cap[] <- 0L
       else overtime_buckets <- overtime_buckets + 1L
     }
 

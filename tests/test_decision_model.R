@@ -41,8 +41,13 @@ stopifnot(z$orders$completed_bucket == 3L, z$orders$on_time,
 
 # Overtime is used only while orders remain open; a late release can require it.
 larger_base <- c(processing = 8L, assembly = 7L, test = 6L, rework = 2L)
+reordered_base <- larger_base[c("test", "processing", "rework", "assembly")]
+stopifnot(identical(capacity_schedule(reordered_base, "continue", 9L), larger_base))
 finished_in_shift <- simulate_day(orders, releases, larger_base, draws,
                                   "reassign_overtime", costs, settings)
+reordered_day <- simulate_day(orders, releases, reordered_base, draws,
+                              "reassign_overtime", costs, settings)
+stopifnot(identical(finished_in_shift$summary, reordered_day$summary))
 stopifnot(finished_in_shift$summary$overtime_hours == 0)
 late_release <- data.frame(bucket = 1:20, units = c(rep(0L, 15), 1L, rep(0L, 4)))
 late_order <- data.frame(order_id = "B", quantity_units = 1L, due_bucket = 20L)
@@ -52,6 +57,18 @@ needs_overtime <- simulate_day(late_order, late_release, larger_base, good_draw,
 stopifnot(needs_overtime$orders$completed_bucket == 18L,
           needs_overtime$summary$overtime_hours == 1)
 
+# A longer observation horizon must not extend the two-hour overtime limit.
+long_settings <- default_settings()
+long_settings$horizon_buckets <- 24L
+long_release <- data.frame(bucket = 1:24, units = c(rep(0L, 19), 1L, rep(0L, 4)))
+long_order <- data.frame(order_id = "C", quantity_units = 1L, due_bucket = 24L)
+long_day <- simulate_day(long_order, long_release, larger_base, good_draw,
+                         "reassign_overtime", costs, long_settings)
+stopifnot(long_day$summary$overtime_hours == 2,
+          long_day$summary$good_units_shipped == 0L,
+          long_day$summary$end_wip_units == 1L,
+          all(long_day$bucket_log$processing_capacity[21:24] == 0L))
+
 # Missing cost parameters must fail rather than silently omit a charge.
 incomplete_costs <- costs
 incomplete_costs$late_usd_per_order <- NULL
@@ -59,6 +76,19 @@ missing_cost_result <- tryCatch(simulate_day(orders, releases, base, draws,
                                               "continue", incomplete_costs),
                                 error = function(e) e)
 stopifnot(inherits(missing_cost_result, "error"))
+
+malformed_defect <- draws
+malformed_defect$defect_draw <- "0.01x"
+bad_defect_result <- tryCatch(simulate_day(orders, releases, base,
+                                           malformed_defect, "continue", costs),
+                              error = function(e) e)
+stopifnot(inherits(bad_defect_result, "error"))
+malformed_repair <- draws
+malformed_repair$repair_draw <- "0.20x"
+bad_repair_result <- tryCatch(simulate_day(orders, releases, base,
+                                           malformed_repair, "continue", costs),
+                              error = function(e) e)
+stopifnot(inherits(bad_repair_result, "error"))
 
 fractional_cap <- base
 fractional_cap["test"] <- 1.5

@@ -26,6 +26,7 @@ Rscript tests/test_dashboard_data.R
 Rscript tests/test_shiny_app.R
 Rscript tests/test_replications.R
 Rscript R/run_replications.R
+Rscript audit/stress_general_inputs.R
 ```
 
 To open the interactive dashboard on your Mac, run `Rscript -e 'shiny::runApp("app", launch.browser=TRUE)'` from the project root. It runs on your computer and is **not deployed publicly**. In the single-day view, the slider changes only the post-shock defect rate; the orders, capacities, and unit-level random draws remain fixed. If you edit input CSVs, restart the app to reload them. The dashboard does not overwrite input CSVs or saved analysis outputs.
@@ -47,6 +48,8 @@ Each bucket is 30 minutes. Bucket 8 ends at hour 4, bucket 16 at hour 8, and buc
 | `costs.csv` | illustrative USD amounts | base labor 2400/day; floater 25/hour; overtime 450/hour; rework consumables 5/unit; scrap material 30/unit; late order proxy 100/order; end WIP proxy 1/unit |
 | `unit_draws.csv` | one defect and repair draw in [0,1) per released unit | R seed `20261103`; shared across all responses |
 
+The four station names may appear in any row order, but each must appear exactly once. Unit IDs must run from 1 through the number of released units, and both draw columns must contain finite numeric values in [0,1); malformed values stop the analysis with an error.
+
 One half-hour of the flex worker adds one test and one rework slot: each quarter-hour is assumed to handle one unit. Reassignment removes two assembly slots and adds two test slots per half-hour, preserving that worker's time. Overtime represents a synthetic 12-person crew at $37.50/person-hour; base labor represents the crew for eight hours at $25/person-hour. Rework consumables exclude labor already counted.
 
 ## Flow, measures, and formulas
@@ -63,7 +66,7 @@ Estimated total cost in synthetic USD is:
 
 `base labor + floater hours × floater rate + used overtime hours × overtime rate + reworked units × consumables rate + scrap units × material rate + late/incomplete orders × late-order proxy + end WIP units × WIP proxy`.
 
-Late-order and WIP charges are comparison proxies, not observed penalties or accounting values. Overtime hours count only half-hour buckets used after hour 8. The full line is staffed during those buckets.
+Late-order and WIP charges are comparison proxies, not observed penalties or accounting values. Overtime hours count only half-hour buckets used after hour 8, with a maximum of four buckets (two hours) even if the observation horizon is longer. The full line is staffed during those buckets.
 
 ## Findings and limitations
 
@@ -72,5 +75,7 @@ See the [decision memo](output/decision_memo.md) and [chart](output/comparison.p
 The 100-day check varies only defect and repair draws. Orders, capacities, costs, and routing remain fixed across days. Its selection count is a **synthetic-scenario frequency**, not a real-world probability that an action is optimal. The reported cost percentile range describes the simulated 100 values; it is not a confidence interval for a factory. With the starter inputs, the 6% fixed-seed day selects Continue, while Reassign is selected on 82 of 100 other synthetic days at 6%; this illustrates why a single draw should not be presented as a stable recommendation.
 
 This is a three-stage, one-day template. Before applying it elsewhere, replace the CSV assumptions, confirm routing and worker qualifications, and compare predictions with observed production. The model omits machine breakdowns, variable processing times, multiple rework attempts, and real customer penalty contracts.
+
+The [public data fit assessment](docs/public_data_assessment.md) explains why three available manufacturing datasets were not substituted for the synthetic line inputs.
 
 **Interview talking points:** test bottlenecks, one-bucket transfer, unit conservation, why reassignment lowers assembly capacity, good units versus fully on-time orders, and why a synthetic recommendation has limited external validity.

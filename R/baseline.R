@@ -1,7 +1,10 @@
 simulate_baseline <- function(orders, releases, capacities) {
   stopifnot(all(c("order_id", "quantity_units", "due_bucket") %in% names(orders)))
   stopifnot(all(c("bucket", "units") %in% names(releases)))
-  stopifnot(identical(names(capacities), c("processing", "assembly", "test")))
+  station_names <- c("processing", "assembly", "test")
+  stopifnot(length(capacities) == length(station_names),
+            setequal(names(capacities), station_names))
+  capacities <- capacities[station_names]
   stopifnot(all(orders$quantity_units > 0), all(releases$units >= 0), all(capacities > 0))
   stopifnot(identical(releases$bucket, seq_len(nrow(releases))))
 
