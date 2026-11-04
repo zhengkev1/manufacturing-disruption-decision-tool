@@ -80,7 +80,7 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Wait for GitHub Actions run `41781249722` to reach a final conclusion; inspect failed step logs if needed. Run the expanded local test suite, then commit the alternate-line test and documentation. Confirm the next CI run includes that test and returns success.
 - **Reproduce:** `for f in tests/*.R; do Rscript "$f" || exit 1; done`; inspect the run's job steps and final conclusion through GitHub; compare local/remote commit IDs.
 - **Rollback:** Retain `6569c52` as the pre-alternate-line checkpoint; if the new test is flaky or mis-specified, remove it without changing the simulator.
-- **Result:** The expanded local suite passed all seven test scripts, and `git diff --check` passed. First CI run succeeded. Committed and pushed alternate-line evidence as `83767c3`; second GitHub run `41781652114` started and was still in progress at 00:50.
+- **Result:** The expanded local suite passed all seven test scripts, and `git diff --check` passed. First CI run succeeded. Committed and pushed alternate-line evidence as `83767c3`; second GitHub run `41781652114` completed successfully.
 
 ## 2026-11-04 00:51 — Step 13: keep repeated simulations from changing the caller's RNG state
 
@@ -94,4 +94,17 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Confirm second GitHub Actions run reaches a final conclusion, review the RNG-isolation diff, then commit/push this verified change. If remote CI fails, inspect the failed step and fix that before declaring automation reliable.
 - **Reproduce:** `git diff --check`; `for f in tests/*.R; do Rscript "$f" || exit 1; done`; inspect GitHub run `41781652114` and the next run after push.
 - **Rollback:** Commit `83767c3` is the last remote checkpoint before RNG isolation.
-- **Result:** Pending.
+- **Result:** Second GitHub run `41781652114` completed successfully. The RNG change passed the focused and full local suites; the 12% saved output CSVs were unchanged. Committed and pushed as `26880f6`; the tree was clean. Third GitHub run `41781966885` was in progress at 00:54.
+
+## 2026-11-04 00:54 — Step 15: check Monte Carlo stability at the starter shock rate
+
+- **Plan before action:** Use the same fixed assumptions at 12% but extend independent synthetic days to 1,000. Compare selection frequencies and mean on-time orders at prefixes 100, 500, and 1,000. Treat these as simulation convergence evidence conditional on the synthetic inputs, not a factory probability estimate. Change no recommendation rule based on this audit alone.
+- **Reproduce:** Run `run_replications(0.12, load_dashboard_inputs(), seeds = 1001:2000)` and aggregate its `daily` table by prefix. Record only summary values, not a second large dataset unless a failure requires it.
+- **Rollback:** This is read-only analysis; commit `26880f6` remains the checkpoint.
+- **Result:** At 12% and seeds 1001–2000, the 100/500/1000-day prefixes selected reassignment on 80/417/848 days (fractions 0.800/0.834/0.848); Continue on 5/26/49; Flex on 15/57/103. Mean on-time orders for reassignment stayed 3.000 in all three prefixes. The ranking was stable, but 100-day fractions are not precise estimates of even the synthetic long-run frequency.
+
+## 2026-11-04 00:55 — Step 16: close the current audit and prepare natural-reset continuation
+
+- **Plan before action:** Confirm GitHub run `41781966885` reaches a final conclusion, commit/push the convergence audit and final logs, check the tree is clean, and read the five-hour usage limit. If the limit interrupts work, leave the 05:15 same-chat heartbeat active; resume from this log after the natural reset and stop by 08:00 New York time. Do not use reset credits.
+- **Reproduce:** GitHub workflow run API, `git status --short --branch`, `get_usage_limits`, and the saved heartbeat automation record.
+- **Result:** GitHub run `41781966885` completed successfully; its R tests and stress audit both passed. `git diff --check` passed. The convergence note and this log are ready for a documentation checkpoint. The natural-reset heartbeat remains active for 05:15.
