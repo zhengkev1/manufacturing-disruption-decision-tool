@@ -34,3 +34,25 @@ run_replications <- function(rate, inputs, seeds = 1001:1100) {
   rownames(summary) <- NULL
   list(rate = rate, seeds = seeds, daily = daily, summary = summary)
 }
+
+run_capacity_sensitivity <- function(capacity_values, rate, inputs,
+                                     seeds = 1001:1100) {
+  if (!is.numeric(capacity_values) || length(capacity_values) < 1L ||
+      any(!is.finite(capacity_values)) ||
+      any(capacity_values < max(1, inputs$settings$reassignment_units)) ||
+      any(capacity_values != floor(capacity_values)) || anyDuplicated(capacity_values))
+    stop("Assembly capacities must be distinct feasible positive whole units")
+  results <- lapply(capacity_values, function(capacity) {
+    varied <- inputs
+    varied$capacities["assembly"] <- capacity
+    run_replications(rate, varied, seeds)
+  })
+  summary <- do.call(rbind, Map(function(capacity, result)
+    data.frame(assembly_capacity = capacity, result$summary),
+    capacity_values, results))
+  daily <- do.call(rbind, Map(function(capacity, result)
+    data.frame(assembly_capacity = capacity, result$daily),
+    capacity_values, results))
+  rownames(summary) <- rownames(daily) <- NULL
+  list(rate = rate, capacities = capacity_values, daily = daily, summary = summary)
+}

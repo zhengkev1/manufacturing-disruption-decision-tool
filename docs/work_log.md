@@ -108,3 +108,31 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Confirm GitHub run `41781966885` reaches a final conclusion, commit/push the convergence audit and final logs, check the tree is clean, and read the five-hour usage limit. If the limit interrupts work, leave the 05:15 same-chat heartbeat active; resume from this log after the natural reset and stop by 08:00 New York time. Do not use reset credits.
 - **Reproduce:** GitHub workflow run API, `git status --short --branch`, `get_usage_limits`, and the saved heartbeat automation record.
 - **Result:** GitHub run `41781966885` completed successfully; its R tests and stress audit both passed. `git diff --check` passed. The convergence note and this log are ready for a documentation checkpoint. The natural-reset heartbeat remains active for 05:15.
+
+## 2026-11-04 05:16 — Step 17: test sensitivity to assembly capacity
+
+- **Plan before action:** With all other starter inputs fixed, vary the assembly station's per-bucket capacity from 4 through 8 and run 100 paired synthetic days at 12% post-shock defects for each value. Record mean on-time orders, cost, and days selected for the three responses. This probes whether the current recommendation depends on spare assembly capacity. Decide after seeing results whether to add a reproducible sensitivity artifact; do not tune the base scenario to force a result.
+- **Reproduce:** Copy `load_dashboard_inputs()` in memory, set `inputs$capacities["assembly"]` for each value, run `run_replications(0.12, inputs, seeds = 1001:1100)`, and compare the 7-capacity row to saved 12% output.
+- **Rollback:** Read-only analysis initially; remote checkpoint `aa3e3e9` remains intact.
+- **Result:** Reassignment was selected on 0/0/17/80/94 of 100 synthetic days as base assembly capacity rose from 4 to 8 units per 30 minutes. At capacity 6, Flex was selected 64 days and reassignment 17; at capacity 7, reassignment was selected 80. The base capacity-7 row exactly matched the saved 12% 5/15/80 result. This is an assumption sensitivity, not a proposed change to the actual line.
+
+## 2026-11-04 05:18 — Step 18: make capacity sensitivity reproducible
+
+- **Plan before action:** Add a small reusable R function around the existing repeated simulator, with a focused failing test for paired capacities and validation of capacity values. Add a CLI script that exports 4–8 capacity summaries and underlying daily records for the starter 12% case, plus a short explanation of what the result means. Keep base inputs and decision rule unchanged.
+- **Reproduce:** `Rscript tests/test_replications.R` red then green; `Rscript R/run_capacity_sensitivity.R`; independently aggregate daily CSV with Python; full R suite.
+- **Rollback:** Commit `aa3e3e9` is the prior clean checkpoint; revert only this new function/script/artifact if the outputs cannot be explained or independently checked.
+- **Result:** Added `run_capacity_sensitivity()` after a missing-function test failed, then passed. The CLI script generated a 15-row summary, 1,500-row daily CSV, and a legible base-R chart. Independent Python aggregation reproduced every count, mean, and cost percentile; base capacity 7 matched the saved 12% repeated results in every field. All seven R test scripts, the 300-case audit, and `git diff --check` passed. The base inputs and decision rule were not changed.
+
+## 2026-11-04 05:21 — Step 19: review and checkpoint the capacity stress test
+
+- **Plan before action:** Obtain an independent review of the new function, script, synthetic results, and documentation. Fix any material issue, then commit and push to the verified private repository. Inspect the GitHub Actions run for this commit.
+- **Reproduce:** Review the uncommitted diff against `aa3e3e9`; run the full local suite; inspect GitHub workflow status after push.
+- **Rollback:** Commit `aa3e3e9` is the last clean remote checkpoint.
+- **Result:** Pending.
+
+## 2026-11-18 — Step 20: finish the pending capacity checkpoint
+
+- **Plan before action:** Add a literal regression check proving that assembly capacity 6 and 7 produce different selections for the documented three seeds. Re-run focused and full tests, review generated artifacts, then commit and push the capacity analysis to the private repository. Keep the starter inputs and decision rule unchanged.
+- **Reproduce:** `Rscript tests/test_replications.R`; all `tests/*.R`; `Rscript audit/stress_general_inputs.R`; `git diff --check`; compare the capacity-7 row to the saved 12% replication summary.
+- **Rollback:** Remote commit `aa3e3e9` remains the checkpoint until this phase passes.
+- **Result:** The three-seed regression now proves capacity 6 selects Continue/Flex/Reassign on 1/2/0 days while capacity 7 selects 1/0/2. All seven R test scripts, the 300-case × 3-response audit, and `git diff --check` passed. GitHub confirmed `zhengkev1/manufacturing-disruption-decision-tool` is private. Commit and remote CI verification follow.
