@@ -136,3 +136,9 @@ This log records each planned step before work starts, then its result and repro
 - **Reproduce:** `Rscript tests/test_replications.R`; all `tests/*.R`; `Rscript audit/stress_general_inputs.R`; `git diff --check`; compare the capacity-7 row to the saved 12% replication summary.
 - **Rollback:** Remote commit `aa3e3e9` remains the checkpoint until this phase passes.
 - **Result:** The three-seed regression now proves capacity 6 selects Continue/Flex/Reassign on 1/2/0 days while capacity 7 selects 1/0/2. All seven R test scripts, the 300-case × 3-response audit, and `git diff --check` passed. GitHub confirmed `zhengkev1/manufacturing-disruption-decision-tool` is private. Commit and remote CI verification follow.
+
+## 2026-11-18 — Step 21: reconcile unexpected remote changes
+
+- **Plan before action:** The push of local commit `76fd1f3` was rejected because remote `main` advanced. Fetch and inspect remote commits and changed paths. Integrate without force-pushing or discarding either side's work, rerun checks if code changes, and then push only if the resulting history is understood.
+- **Reproduce:** `git fetch origin`; inspect `git log --left-right` and `git diff --name-status` between heads; then run relevant tests after integration.
+- **Result:** Remote `a9b580d` changed only the README's employer wording. A regular merge preserved that wording and the local capacity analysis without conflict; `git diff --check` passed. No model code changed in the merge. Push and remote CI check follow.
