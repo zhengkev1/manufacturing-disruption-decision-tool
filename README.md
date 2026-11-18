@@ -1,6 +1,6 @@
 # Manufacturing Disruption Decision Tool
 
-An **independent synthetic portfolio project** in base R. No input or result comes from BorgWarner or any other employer. This demonstrates a decision method, not a validated forecast or a real performance improvement.
+An **independent synthetic portfolio project** in base R. No input or result comes from any other employer. This demonstrates a decision method, not a validated forecast or a real performance improvement.
 
 ## Decision question
 
