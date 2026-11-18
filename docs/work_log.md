@@ -142,3 +142,16 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** The push of local commit `76fd1f3` was rejected because remote `main` advanced. Fetch and inspect remote commits and changed paths. Integrate without force-pushing or discarding either side's work, rerun checks if code changes, and then push only if the resulting history is understood.
 - **Reproduce:** `git fetch origin`; inspect `git log --left-right` and `git diff --name-status` between heads; then run relevant tests after integration.
 - **Result:** Remote `a9b580d` changed only the README's employer wording. A regular merge preserved that wording and the local capacity analysis without conflict; `git diff --check` passed. No model code changed in the merge. Push and remote CI check follow.
+
+## 2026-11-18 — Step 22: audit time-bucket sensitivity
+
+- **Plan before action:** Build a separate, small Python implementation of the same queue rules at 30- and 15-minute resolution. Preserve every 30-minute release total, station service-slot total, order due time, and unit-level defect/repair draws. Run paired single-day and repeated-day comparisons at both resolutions. Identify any recommendation changes as model sensitivity, not a more accurate prediction, because within-half-hour release/service timing remains assumed.
+- **Verification:** Test Python conservation, two-hour overtime limit, and exact 30-minute agreement with the R starter case; independently inspect any 15-minute recommendation differences. Keep the existing R engine unchanged.
+- **Rollback:** Git commit `9b4aad8` is the last remote checkpoint. Remove this experimental Python audit if its 30-minute implementation does not match R.
+- **Result:** A separate standard-library Python simulator matched every numeric R fixed-day summary field at 30-minute resolution. For every half-hour and response, the two 15-minute capacity allocations summed to the original capacity. Unit conservation and the two-hour overtime cap passed throughout. The fixed-day recommendation stayed Reassign, but 49/100 paired synthetic days changed recommendation at 15-minute resolution; 30-minute selections were 7/12/81 and 15-minute selections were 40/0/60 (Continue/Flex/Reassign). Documented that within-half-hour timing is assumed and Python's 100-day draws differ from R's RNG. This audit changes no base CSV or R model.
+
+## 2026-11-18 — Step 23: automate and checkpoint the timing audit
+
+- **Plan before action:** Add the standard-library Python audit to the existing private GitHub Actions workflow, run it locally once more with the R suite, review the diff, commit and push. Inspect the remote workflow's actual conclusion. The previous capacity milestone's run `44326906314` already completed successfully.
+- **Rollback:** Remote commit `9b4aad8` is the last confirmed checkpoint.
+- **Result:** The independent Python timing audit, all seven R test scripts, and `git diff --check` passed locally. The existing workflow now runs the audit on each push. Commit, push, and remote workflow inspection follow.

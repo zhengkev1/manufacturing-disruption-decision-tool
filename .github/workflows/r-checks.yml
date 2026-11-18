@@ -24,3 +24,5 @@ jobs:
           done
       - name: Stress valid synthetic inputs
         run: Rscript audit/stress_general_inputs.R
+      - name: Audit time resolution against saved R result
+        run: python3 audit/time_resolution.py
