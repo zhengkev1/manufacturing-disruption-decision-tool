@@ -161,3 +161,11 @@ This log records each planned step before work starts, then its result and repro
 - **Plan before action:** Create a reviewable implementation plan for an event-level Python simulator, parameterized staffing decisions, paired Monte Carlo experiments, and a decision dashboard. Anchor it to the approved synthetic-project constraints and the observed 49/100 timing-sensitivity result. Define interfaces, tests, independent checks, stop gates, and truthful claim limits. Do not start implementing the new model before the plan is reviewed.
 - **Reproduce:** Inspect the plan against `docs/project_spec.md`, current R/Python files, and `docs/time_resolution_audit.md`; verify each milestone has an observable result and a failure/rollback gate.
 - **Result:** Wrote a 229-line, seven-milestone implementation plan at `docs/simulation_workflow_plan.md` covering an event-level Python engine, feasible fixed staffing policies, paired Monte Carlo comparisons, a held-out dynamic policy, robustness checks, Shiny presentation, and final portfolio evidence. Each milestone names files, interfaces, focused tests, independent checks, and a stop gate. Checked its section/task coverage and `git diff --check`; no new model code was started. The default skill plan directory is gitignored in this repository, so the plan was placed in tracked `docs/`.
+
+## 2026-11-24 — Step 25: event contract
+Plan: define exact clock, worker and order boundaries; hand trace four units before engine code.
+Result: contract records the hand-derived shipments and same-time boundary rules.
+
+## Step 26: implement and verify event engine
+Plan: load synthetic CSV inputs, implement timestamp queue and worker calendars, run hand trace, quality and staffing boundary tests and all three starter scenarios.
+Result: six Python tests passed, including an exact 6/9/12/15 second hand trace, deadline, shock, repair and scrap, worker handover and overtime checks. All three starter policies delivered 80 units on time across three orders. Reassignment balance 80+11+1+36=128 and cost 2400+35+30+36=2501. Service and transfer timing are synthetic. Command: python3 -B -m python.event_sim.

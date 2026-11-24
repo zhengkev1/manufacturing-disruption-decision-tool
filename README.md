@@ -85,3 +85,7 @@ The [time-resolution audit](docs/time_resolution_audit.md) uses an independent P
 The [public data fit assessment](docs/public_data_assessment.md) explains why three available manufacturing datasets were not substituted for the synthetic line inputs.
 
 **Interview talking points:** test bottlenecks, one-bucket transfer, unit conservation, why reassignment lowers assembly capacity, good units versus fully on-time orders, and why a synthetic recommendation has limited external validity.
+
+## Python event simulation
+
+Run `python3 -B -m python.event_sim` from the repository root for the three starter responses. See the [event contract and worked example](docs/event_model_contract.md) for clock boundaries, synthetic service times and tests.

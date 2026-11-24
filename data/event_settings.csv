@@ -1,0 +1,6 @@
+worker,station,service_seconds
+process,processing,225
+assemble,assembly,360
+movable,assembly,900
+tester,test,300
+repair,rework,900

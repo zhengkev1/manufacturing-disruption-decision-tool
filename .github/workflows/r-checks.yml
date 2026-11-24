@@ -26,3 +26,5 @@ jobs:
         run: Rscript audit/stress_general_inputs.R
       - name: Audit time resolution against saved R result
         run: python3 audit/time_resolution.py
+      - name: Check event engine and input contract
+        run: python3 -B -m unittest discover -s tests_py -v
